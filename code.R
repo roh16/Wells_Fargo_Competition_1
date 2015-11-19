@@ -21,6 +21,6 @@ for(i in 1:length(comment)){
         } 
         contain<-paste(contain,collapse = '')
         Bank<-append(Bank,contain)
-}#identify which bank
+}#identify which bank: BankA:1,BankB:2,BankC:3,BankD:4
 tb<-cbind(tb,Bank)
   
