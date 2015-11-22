@@ -4,23 +4,11 @@ library(data.table)
 tb<-fread(input = 'datafile.txt',stringsAsFactors = T,header = T )
 comment<-str_to_lower(tb$FullText)#transfer all letters to lower case
 comment<-gsub("[[:punct:]]", " ", comment)
-Bank<-c()
-for(i in 1:length(comment)){
-        contain<-c()
-        if('banka' %in% unlist(strsplit(comment[i],split = ' '))){
-                contain<-append(contain,1)
-        }
-        if('bankb' %in% unlist(strsplit(comment[i],split = ' '))){
-                contain<-append(contain,2)
-        }
-        if('bankc' %in% unlist(strsplit(comment[i],split = ' '))){
-                contain<-append(contain,3)
-        }
-        if('bankd' %in% unlist(strsplit(comment[i],split = ' '))){
-                contain<-append(contain,4)
-        } 
-        contain<-paste(contain,collapse = '')
-        Bank<-append(Bank,contain)
-}#identify which bank: BankA:1,BankB:2,BankC:3,BankD:4
-tb<-cbind(tb,Bank)
-  
+comment<-as.data.frame(comment)
+#creating columns to identify each bank
+banka<-apply(comment,1,FUN = function(x)  { if('banka' %in% unlist(strsplit(x,split = ' '))) 1 else 0 })
+bankb<-apply(comment,1,FUN = function(x)  { if('bankb' %in% unlist(strsplit(x,split = ' '))) 1 else 0 })
+bankc<-apply(comment,1,FUN = function(x)  { if('bankc' %in% unlist(strsplit(x,split = ' '))) 1 else 0 })
+bankd<-apply(comment,1,FUN = function(x)  { if('bankd' %in% unlist(strsplit(x,split = ' '))) 1 else 0 })
+#bind them to original dataset
+tb<-do.call(cbind, list(tb,BANKA=banka,BANKB=bankb,BANKC=bankc,BANKD=bankd))
