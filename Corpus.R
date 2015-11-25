@@ -6,7 +6,7 @@ corpusfun<-function(x){
         
         # omit the special letters in the data
         txt<-x$FullText
-        txt<-sapply(txt,FUN = function(x){gsub("[^[:alnum:]]", " ",x)})
+        txt<-sapply(txt,FUN = function(y){gsub("[^[:alnum:]]", " ",y)})
         x$FullText<-txt
         dataset<-as.matrix(x)
         #First we will remove retweet entities from the stored tweets (text)

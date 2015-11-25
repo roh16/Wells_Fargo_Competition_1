@@ -13,9 +13,12 @@ library(SnowballC)
 
 # Get the lengths and make sure we only create a DTM for tweets with
 # some actual content
+
 doc.lengths <- rowSums(as.matrix(DocumentTermMatrix(corpus)))
 dtm <- DocumentTermMatrix(corpus[doc.lengths > 0])
 # model <- LDA(dtm, 10)  # Go ahead and test a simple model if you want
+
+
 
 
 
