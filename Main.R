@@ -2,6 +2,10 @@ library(stringdist)
 library(stringr)
 library(data.table)
 library(dplyr)
+library(tm)
+library(topicmodels)
+library(SnowballC)
+
 tb<-fread(input = 'datafile.txt',stringsAsFactors = T,header = T )
 comment<-str_to_lower(tb$FullText)#transfer all letters to lower case
 comment<-gsub("[[:punct:]]", " ", comment)
@@ -50,26 +54,28 @@ corpusfun<-function(x){
         myCorpus = tm_map(myCorpus,content_transformer(tolower))
         myCorpus = tm_map(myCorpus, removePunctuation)
         myCorpus = tm_map(myCorpus, removeNumbers)
+        myCorpus.copy<-myCorpus
         myCorpus = tm_map(myCorpus, stemDocument,language='english')
+        myCorpus = tm_map(myCorpus, stemCompletion,dictionary=myCorpus.copy)
         myCorpus = tm_map(myCorpus, removeWords, stopwords('english'))
         #another stopwords list
         stop2<-as.vector(stopwords('SMART'))
         # strip "'" in the list to because people always do this in their tweets
         stop3<-sapply(stop2,FUN = function(x){gsub(pattern = "'",'',x)})
         myCorpus = tm_map(myCorpus, removeWords,c(stop2,stop3))    
-   ####################################################Topic Modeling############     
-        doc.lengths <- rowSums(as.matrix(DocumentTermMatrix(myCorpus)))
-        dtm <- DocumentTermMatrix(myCorpus[doc.lengths > 0])
-        SEED = sample(1:1000000, 1)
-        k = 10 
-        models <- list(
-                CTM       = CTM(dtm, k = k, control = list(seed = SEED, var = list(tol = 10^-4), em = list(tol = 10^-3))),
-                VEM       = LDA(dtm, k = k, control = list(seed = SEED)),
-                VEM_Fixed = LDA(dtm, k = k, control = list(estimate.alpha = FALSE, seed = SEED)),
-                Gibbs     = LDA(dtm, k = k, method = "Gibbs", control = list(seed = SEED, burnin = 1000,
-                                                                             thin = 100,    iter = 1000))
-        )
-        lapply(models, terms, 10)
+   ####################################################Topic Modeling############ 
+         dtm <- DocumentTermMatrix(myCorpus)
+ 
+         SEED = sample(1:1000000, 1)
+         k = 10 
+         models <- list(
+                 CTM       = CTM(dtm, k = k, control = list(seed = SEED, var = list(tol = 10^-4), em = list(tol = 10^-3))),
+                 VEM       = LDA(dtm, k = k, control = list(seed = SEED)),
+                 VEM_Fixed = LDA(dtm, k = k, control = list(estimate.alpha = FALSE, seed = SEED)),
+                 Gibbs     = LDA(dtm, k = k, method = "Gibbs", control = list(seed = SEED, burnin = 1000,
+                                                                              thin = 100,    iter = 1000))
+         )
+         lapply(models, terms, 10)
 }
 # Look at bank a:
 corpusA<-corpusfun(x = badata)
