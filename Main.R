@@ -5,7 +5,10 @@ library(dplyr)
 library(tm)
 library(topicmodels)
 library(SnowballC)
-
+library(rJava)
+library(RWeka)
+library(slam)
+library(textcat)
 tb<-fread(input = 'datafile.txt',stringsAsFactors = T,header = T )
 comment<-str_to_lower(tb$FullText)#transfer all letters to lower case
 comment<-gsub("[[:punct:]]", " ", comment)
@@ -26,56 +29,77 @@ bddata<-filter(tb,BANKD==1)
 
 # The function creating corpus and term frequencies
 corpusfun<-function(x){
-        library(data.table)
-        library(textcat)
-        library(tm)
-        library(slam)
-        library(topicmodels)
-        library(SnowballC)
+        
+        
+
+     
         # omit the special letters in the data
         txt<-x$FullText
         txt<-sapply(txt,FUN = function(y){gsub("[^[:alnum:]#]", " ",y)})
         x$FullText<-txt
         dataset<-x$FullText
         #First we will remove retweet entities from the stored tweets (text)
-        dataset = gsub("(RT|via)((?:\\b\\W*@\\w+)+)", "", dataset)
+        dataset = gsub("(RT|via)((?:\\b\\W*@\\w+)+)", " ", dataset)
         # Then remove all "@people"
-        dataset = gsub("@\\w+", "", dataset)
+        dataset = gsub("@\\w+", " ", dataset)
         # Then remove all the punctuation
-        dataset = gsub("[[:punct:,^\\#]]", "", dataset)
+        dataset = gsub("[[:punct:,^\\#]]", " ", dataset)
         # Then remove numbers, we need only text for analytics
-        dataset = gsub("[[:digit:]]", "", dataset)
+        dataset = gsub("[[:digit:]]", " ", dataset)
         # the remove html links, which are not required for sentiment analysis
-        dataset = gsub("http\\w+", "", dataset)
+        dataset = gsub("http\\w+", " ", dataset)
         # finally, we remove unnecessary spaces (white spaces, tabs etc)
-        dataset = gsub("[ \t]{2,}", "", dataset)
+        dataset = gsub("[ \t]{2,}", " ", dataset)
         dataset = gsub("^\\s+|\\s+$", "", dataset)
+        
+        print('gsubs finished')
+        
+
         myCorpus = Corpus(VectorSource(dataset))
-        myCorpus = tm_map(myCorpus,content_transformer(tolower))
-        myCorpus = tm_map(myCorpus, removePunctuation)
+        
+        myCorpus <- tm_map(myCorpus,content_transformer(function(x) iconv(x, to='UTF-8-MAC', sub='byte')))
+        
+        myCorpus = tm_map(myCorpus, content_transformer(tolower))
         myCorpus = tm_map(myCorpus, removeNumbers)
-        myCorpus.copy<-myCorpus
-        myCorpus = tm_map(myCorpus, stemDocument,language='english')
-        myCorpus = tm_map(myCorpus, stemCompletion,dictionary=myCorpus.copy)
+        myCorpus = tm_map(myCorpus, removePunctuation)
         myCorpus = tm_map(myCorpus, removeWords, stopwords('english'))
+        myCorpus = tm_map(myCorpus, removeWords,c('banka','bankb','bankc','bankd','bank','hndl','twit','lol','hey','make','name','don'))
         #another stopwords list
         stop2<-as.vector(stopwords('SMART'))
         # strip "'" in the list to because people always do this in their tweets
         stop3<-sapply(stop2,FUN = function(x){gsub(pattern = "'",'',x)})
         myCorpus = tm_map(myCorpus, removeWords,c(stop2,stop3))    
+        myCorpus <- tm_map(myCorpus, stripWhitespace)
+        myCorpus <- tm_map(myCorpus, PlainTextDocument)
+        print('start Stemming')
+        mc<- myCorpus
+        stemCompletion_mod<-function(x,dict=myCorpus) {
+                PlainTextDocument(stripWhitespace(paste(stemCompletion(unlist(strsplit(as.character(x)," ")),dictionary=mc),sep="", collapse=" ")))
+        }
+        
+        myCorpus = tm_map(myCorpus, stemDocument,language='english')
+        print('stem completion!!')
+        myCorpus = tm_map(myCorpus, content_transformer(stemCompletion_mod))
+       
+
    ####################################################Topic Modeling############ 
+         print('creating dtm')
          dtm <- DocumentTermMatrix(myCorpus)
- 
+         rowTotals <- apply(dtm , 1, sum)
+         dtm <- dtm[rowTotals> 0, ] 
          SEED = sample(1:1000000, 1)
          k = 10 
+         print('Modeling')
          models <- list(
-                 CTM       = CTM(dtm, k = k, control = list(seed = SEED, var = list(tol = 10^-4), em = list(tol = 10^-3))),
-                 VEM       = LDA(dtm, k = k, control = list(seed = SEED)),
-                 VEM_Fixed = LDA(dtm, k = k, control = list(estimate.alpha = FALSE, seed = SEED)),
-                 Gibbs     = LDA(dtm, k = k, method = "Gibbs", control = list(seed = SEED, burnin = 1000,
-                                                                              thin = 100,    iter = 1000))
-         )
-         lapply(models, terms, 10)
+           CTM       = CTM(dtm, k = k, control = list(seed = SEED, var = list(tol = 10^-4), em = list(tol = 10^-3))),
+           VEM       = LDA(dtm, k = k, control = list(seed = SEED)),
+           VEM_Fixed = LDA(dtm, k = k, control = list(estimate.alpha = FALSE, seed = SEED)),
+           Gibbs     = LDA(dtm, k = k, method = "Gibbs", control = list(seed = SEED, burnin = 1000,
+                                                                        thin = 100,    iter = 1000))
+   )
+   lapply(models, terms, 10)
+         
+ 
 }
 # Look at bank a:
 corpusA<-corpusfun(x = badata)
