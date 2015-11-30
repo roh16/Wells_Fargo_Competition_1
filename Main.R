@@ -13,12 +13,12 @@ tb<-fread(input = 'datafile.txt',stringsAsFactors = T,header = T )
 comment<-str_to_lower(tb$FullText)#transfer all letters to lower case
 comment<-gsub("[[:punct:]]", " ", comment)
 comment<-as.data.frame(comment)
-#creating columns to identify each bank
+# identify  bank
 banka<-apply(comment,1,FUN = function(x)  { if('banka' %in% unlist(strsplit(x,split = ' '))) 1 else 0 })
 bankb<-apply(comment,1,FUN = function(x)  { if('bankb' %in% unlist(strsplit(x,split = ' '))) 1 else 0 })
 bankc<-apply(comment,1,FUN = function(x)  { if('bankc' %in% unlist(strsplit(x,split = ' '))) 1 else 0 })
 bankd<-apply(comment,1,FUN = function(x)  { if('bankd' %in% unlist(strsplit(x,split = ' '))) 1 else 0 })
-#bind them to original dataset
+#bind  to original dataset
 tb<-do.call(cbind, list(tb,BANKA=banka,BANKB=bankb,BANKC=bankc,BANKD=bankd))
 
 #subset each bank
@@ -27,7 +27,7 @@ bbdata<-filter(tb,BANKB==1)
 bcdata<-filter(tb,BANKC==1)
 bddata<-filter(tb,BANKD==1)
 
-# The function creating corpus and term frequencies
+# The function creating corpus topic modeling
 corpusfun<-function(x){
 
         # omit the special letters in the data
@@ -35,17 +35,17 @@ corpusfun<-function(x){
         txt<-sapply(txt,FUN = function(y){gsub("[^[:alnum:]#]", " ",y)})
         x$FullText<-txt
         dataset<-x$FullText
-        #First we will remove retweet entities from the stored tweets (text)
+        # remove retweet entities from the stored tweets (text)
         dataset = gsub("(RT|via)((?:\\b\\W*@\\w+)+)", " ", dataset)
-        # Then remove all "@people"
+        # remove all "@people"
         dataset = gsub("@\\w+", " ", dataset)
-        # Then remove all the punctuation
+        #  remove all the punctuation
         dataset = gsub("[[:punct:,^\\#]]", " ", dataset)
-        # Then remove numbers, we need only text for analytics
+        # remove numbers
         dataset = gsub("[[:digit:]]", " ", dataset)
-        # the remove html links, which are not required for sentiment analysis
+        # the remove html links
         dataset = gsub("http\\w+", " ", dataset)
-        # finally, we remove unnecessary spaces (white spaces, tabs etc)
+        #  we remove unnecessary spaces (white spaces, tabs etc)
         dataset = gsub("[ \t]{2,}", " ", dataset)
         dataset = gsub("^\\s+|\\s+$", "", dataset)
         
@@ -73,11 +73,13 @@ corpusfun<-function(x){
                 FUN = function(doc) !is.element(meta(doc)$id, empty.rows))
      
 
-   ####################################################Topic Modeling############ 
+####Topic Modeling############ 
          print('creating dtm')
          dtm<-DocumentTermMatrix(myCorpus)
          dtm<-removeSparseTerms(dtm,0.99)
          dtm   <- dtm[row_sums(dtm)>0, ] 
+
+
    
 
          SEED = sample(1:1000000, 1)
