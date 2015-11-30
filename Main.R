@@ -29,10 +29,7 @@ bddata<-filter(tb,BANKD==1)
 
 # The function creating corpus and term frequencies
 corpusfun<-function(x){
-        
-        
 
-     
         # omit the special letters in the data
         txt<-x$FullText
         txt<-sapply(txt,FUN = function(y){gsub("[^[:alnum:]#]", " ",y)})
@@ -60,33 +57,32 @@ corpusfun<-function(x){
         myCorpus <- tm_map(myCorpus,content_transformer(function(x) iconv(x, to='UTF-8-MAC', sub='byte')))
         
         myCorpus = tm_map(myCorpus, content_transformer(tolower))
-        myCorpus = tm_map(myCorpus, removeNumbers)
-        myCorpus = tm_map(myCorpus, removePunctuation)
-        myCorpus = tm_map(myCorpus, removeWords, stopwords('english'))
-        myCorpus = tm_map(myCorpus, removeWords,c('banka','bankb','bankc','bankd','bank','hndl','twit','lol','hey','make','name','don'))
+        myCorpus = tm_map(myCorpus, content_transformer(removeNumbers))
+        myCorpus = tm_map(myCorpus, content_transformer(removePunctuation))
+        myCorpus = tm_map(myCorpus, content_transformer(removeWords), stopwords('english'))
+        myCorpus = tm_map(myCorpus, content_transformer(removeWords),c('banka','bankb','bankc','bankd','bank','hndl','twit','lol','hey','make','name','don','bit','uhijre'))
         #another stopwords list
         stop2<-as.vector(stopwords('SMART'))
         # strip "'" in the list to because people always do this in their tweets
         stop3<-sapply(stop2,FUN = function(x){gsub(pattern = "'",'',x)})
-        myCorpus = tm_map(myCorpus, removeWords,c(stop2,stop3))    
-        myCorpus <- tm_map(myCorpus, stripWhitespace)
-        myCorpus <- tm_map(myCorpus, PlainTextDocument)
-        print('start Stemming')
-        mc<- myCorpus
-        stemCompletion_mod<-function(x,dict=myCorpus) {
-                PlainTextDocument(stripWhitespace(paste(stemCompletion(unlist(strsplit(as.character(x)," ")),dictionary=mc),sep="", collapse=" ")))
-        }
+        myCorpus = tm_map(myCorpus, content_transformer(removeWords),c(stop2,stop3))    
+        myCorpus <- tm_map(myCorpus, content_transformer(stripWhitespace))
+        myCorpus <- tm_map(myCorpus, content_transformer(PlainTextDocument))
+        corpus <- tm_filter(
+                myCorpus,
+                FUN = function(doc) !is.element(meta(doc)$id, empty.rows))
+     
+   
         
-        myCorpus = tm_map(myCorpus, stemDocument,language='english')
-        print('stem completion!!')
-        myCorpus = tm_map(myCorpus, content_transformer(stemCompletion_mod))
+     
        
 
    ####################################################Topic Modeling############ 
          print('creating dtm')
-         dtm <- DocumentTermMatrix(myCorpus)
-         rowTotals <- apply(dtm , 1, sum)
-         dtm <- dtm[rowTotals> 0, ] 
+         dtm<-DocumentTermMatrix(myCorpus)
+         dtm   <- dtm[row_sums(dtm)>0, ] 
+   
+
          SEED = sample(1:1000000, 1)
          k = 10 
          print('Modeling')
