@@ -60,7 +60,7 @@ corpusfun<-function(x){
         myCorpus = tm_map(myCorpus, content_transformer(removeNumbers))
         myCorpus = tm_map(myCorpus, content_transformer(removePunctuation))
         myCorpus = tm_map(myCorpus, content_transformer(removeWords), stopwords('english'))
-        myCorpus = tm_map(myCorpus, content_transformer(removeWords),c('banka','bankb','bankc','bankd','bank','hndl','twit','lol','hey','make','name','don','bit','uhijre'))
+        myCorpus = tm_map(myCorpus, content_transformer(removeWords),c('banka','bankb','bankc','bankd','bank','hndl','twit','lol','hey','make','name','don','bit','uhijre','ret','bankac','resp','ers','er','today','ift','dlvr','plc','goo','man','banke','bankds'))
         #another stopwords list
         stop2<-as.vector(stopwords('SMART'))
         # strip "'" in the list to because people always do this in their tweets
@@ -72,14 +72,11 @@ corpusfun<-function(x){
                 myCorpus,
                 FUN = function(doc) !is.element(meta(doc)$id, empty.rows))
      
-   
-        
-     
-       
 
    ####################################################Topic Modeling############ 
          print('creating dtm')
          dtm<-DocumentTermMatrix(myCorpus)
+         dtm<-removeSparseTerms(dtm,0.99)
          dtm   <- dtm[row_sums(dtm)>0, ] 
    
 
@@ -87,18 +84,19 @@ corpusfun<-function(x){
          k = 10 
          print('Modeling')
          models <- list(
-           CTM       = CTM(dtm, k = k, control = list(seed = SEED, var = list(tol = 10^-4), em = list(tol = 10^-3))),
-           VEM       = LDA(dtm, k = k, control = list(seed = SEED)),
-           VEM_Fixed = LDA(dtm, k = k, control = list(estimate.alpha = FALSE, seed = SEED)),
-           Gibbs     = LDA(dtm, k = k, method = "Gibbs", control = list(seed = SEED, burnin = 1000,
-                                                                        thin = 100,    iter = 1000))
+           VEM_Fixed = LDA(dtm, k = k, control = list(estimate.alpha = FALSE, seed = SEED))
    )
-   lapply(models, terms, 10)
-         
+   topics<-as.data.frame(lapply(models, terms, 10))
+   
+   apply(topics,2,function(x) findAssocs(dtm,x,0.3))
+  
+        
  
 }
-# Look at bank a:
+# Get the topic for each bank:
 corpusA<-corpusfun(x = badata)
 corpusB<-corpusfun(x = bbdata)
 corpusC<-corpusfun(x = bcdata)
 corpusD<-corpusfun(x = bddata)
+
+     
