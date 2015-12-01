@@ -29,72 +29,68 @@ Clustering Topics using Latent Dirchlet Allocation:
 The LDA was developed by David Blei, Andrew Ng, and Michael Jordan and exposed in Blei et al. (2003). LDA creates generative models in general but when used within text mining it creates clusters of topics from text documents. The results of LDA are list of multiple topics. This is advantage of LDA since the user does not set the topics prior to modeling. LDA essentially uses “bag of words” modeling since the sequence of words is not important.
 We used the LDA package within R to apply LDA on the corpus we created in the previous step. As an output of LDA we got various clusters of terms.
 It is also important to note that the corpus for all the 4 banks was created separately and the outputs obtained from LDA are based on the respective corpuses.
+
 Deliverable B
 Since the data comprises of customer conversation on twitter and Facebook. To see the key drivers of the conversations we analyzed the most frequent words in the text data. Following  are the word clouds for all the banks.
-
-
-
-
-
 
 Some of the key conversation drivers in general are Goldmansachs,Morganstanley, Wall Street and classwarfare. And a guy whose named Theodwridis is also frequently mentioned in each banks’ topics, so we assume he is a guy who really has something to do with the bank industry.”Get college ready” is also a driver that may have something to do with students account.
 
 Deliverable D
 Following are the topics for each of the Banks.
 
-Bank A
+    Bank A
 
-Financial Inequality
-People talk about financial terrorists, wall street, banksters
-Goldman Sachs and Morgan Stanley are also being talked about.
+    Financial Inequality
+    People talk about financial terrorists, wall street, banksters
+    Goldman Sachs and Morgan Stanley are also being talked about.
 
-Free College Accounts
-There are topics related to free college accounts for students and some kind of contest was also organized which might be related to college account
+    Free College Accounts
+    There are topics related to free college accounts for students and some kind of contest was also organized which might be related to college account
 
-Happy about Loans
-People talk opening accounts to pay up the loans,mortgages.
-
-
-
-Bank B
-
-Financial Inequality
-People talk about financial terrorists, wall street, banksters
-Goldman Sachs and Morgan Stanley are also being talked about.
-
-Free College Accounts
-There are topics related to free college accounts for students and some kind of contest was also organized which might be related to college account
-
-Carolina Panthers
-There are some topics related to Carolina Panthers but also there is mention of fraud
-
-Corporate Settlement
-The bank also seems to corporation business and company settlement
+    Happy about Loans
+    People talk opening accounts to pay up the loans,mortgages.
 
 
 
-Bank C
+    Bank B
 
-Global Presence
-There are topics in Bank C talking about international business and also mentioned countries such as China and India
+    Financial Inequality
+    People talk about financial terrorists, wall street, banksters
+    Goldman Sachs and Morgan Stanley are also being talked about.
 
-Oil trade
-Oil and Energy trade is mention is one topic of bank C so we think bank C is more likely to related to natural resources
+    Free College Accounts
+    There are topics related to free college accounts for students and some kind of contest was also organized which might be related to college account
 
-Financial Inequality
-People talk about financial terrorists, wall street, banksters
-Goldman Sachs and Morgan Stanley are also being talked about.
+    Carolina Panthers
+    There are some topics related to Carolina Panthers but also there is mention of fraud
+
+    Corporate Settlement
+    The bank also seems to corporation business and company settlement
 
 
 
-Bank D
+    Bank C
 
-Financial Inequality
-People talk about financial terrorists, wall street, banksters
-Goldman Sachs and Morgan Stanley are also being talked about.
+    Global Presence
+    There are topics in Bank C talking about international business and also mentioned countries such as China and India
 
-Small Business focused
-We have 5 out of 10 topics in Bank B dataset talking about small business program and it is quite unique
+    Oil trade
+    Oil and Energy trade is mention is one topic of bank C so we think bank C is more likely to related to natural resources
+
+    Financial Inequality
+    People talk about financial terrorists, wall street, banksters
+    Goldman Sachs and Morgan Stanley are also being talked about.
+
+
+
+    Bank D
+
+    Financial Inequality
+    People talk about financial terrorists, wall street, banksters
+    Goldman Sachs and Morgan Stanley are also being talked about.
+
+    Small Business focused
+    We have 5 out of 10 topics in Bank B dataset talking about small business program and it is quite unique
 
 
 
