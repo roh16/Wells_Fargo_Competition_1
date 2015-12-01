@@ -7,6 +7,7 @@ Author: Yifan Wang, Rohan Gupta, Kyle Taylor
 Abstract
 
 Customer voice is a key asset for any company and leveraging it can provide key insights. Twitter and Facebook are key platforms where customers provide feedback on the service they received and thus provides opportunity for a company to understand how they feel about the firm and its services. In this challenge we are tasked with similar opportunity and we have used R and its text mining capabilities to approach this challenge. Like any other data analytics problem the most challenging task was to clean the data and this being text data posed even more challenges. Post the cleaning phase we created corpus of documents which in our cases were tweets and Facebook feeds. Next we applied topic modeling algorithm LDA (Latent Dirichlet allocation) to cluster similar topics.
+
 Keywords
 Text mining, topic modeling, Latent Dirchlet Allocation
 
@@ -31,11 +32,13 @@ We used the LDA package within R to apply LDA on the corpus we created in the pr
 It is also important to note that the corpus for all the 4 banks was created separately and the outputs obtained from LDA are based on the respective corpuses.
 
 Deliverable B
+
 Since the data comprises of customer conversation on twitter and Facebook. To see the key drivers of the conversations we analyzed the most frequent words in the text data. Following  are the word clouds for all the banks.
 
 Some of the key conversation drivers in general are Goldmansachs,Morganstanley, Wall Street and classwarfare. And a guy whose named Theodwridis is also frequently mentioned in each banks’ topics, so we assume he is a guy who really has something to do with the bank industry.”Get college ready” is also a driver that may have something to do with students account.
 
 Deliverable D
+
 Following are the topics for each of the Banks.
 
     Bank A
